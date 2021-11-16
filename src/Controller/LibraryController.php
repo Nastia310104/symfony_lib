@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class LibraryController extends AbstractController
 {
     /**
-     * @Route("/")
+     * @Route("/", name="lib_home")
      */
     public function home(){
         return $this->render('home.html.twig', [
@@ -18,7 +18,7 @@ class LibraryController extends AbstractController
     }
 
     /**
-     * @Route("/books")
+     * @Route("/books", name="lib_books")
      */
     public function books(){
         $years = ['13', '14', '15'];
@@ -32,7 +32,12 @@ class LibraryController extends AbstractController
         ]);
     }
 
-//    /**
-//     * @Route ("/authors")
-//     */
+    /**
+     * @Route ("/authors", name="lib_authors")
+     */
+    public function authors(){
+        return $this->render('authors.html.twig', [
+            'title' => 'Authors'
+        ]);
+    }
 }

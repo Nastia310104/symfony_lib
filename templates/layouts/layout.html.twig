@@ -11,14 +11,14 @@
 <body class="bg-dark bg-gradient vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Library</a>
+            <a class="navbar-brand" href="{{ path('lib_home') }}">Library</a>
             <div class="inner_nav">
                 <ul class="nav me-auto mb-2 mb-lg-0 d-flex">
                     <li class="nav-item">
-                        <a class="nav-link text-muted" href="books">Books</a>
+                        <a class="nav-link text-muted" href="{{ path('lib_books') }}">Books</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-muted" href="#">Authors</a>
+                        <a class="nav-link text-muted" href="{{ path('lib_authors') }}">Authors</a>
                     </li>
                 </ul>
             </div>
