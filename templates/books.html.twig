@@ -79,13 +79,19 @@
                 <tbody>
                     {% for book in library %}
                         <tr>
-                            <th>{{ book.image }}</th>
+                            <th>
+                                <img class="img" src="{{ book.image }}" alt="Can't load by some reason. src='{{ book.image }}'">
+                            </th>
                             <th>{{ book.bName }}</th>
                             <th>{{ book.author }}</th>
                             <th>{{ book.description }}</th>
                             <th>{{ book.year }}</th>
 
                         </tr>
+{#                        <tr>#}
+{#                            <input class="form-control my-3" type="text" name="{{ book.bName }}" value="{{ book.bName }}">#}
+{#Why it sets upper table?#}
+{#                        </tr>#}
                     {% endfor %}
                 </tbody>
             </table>

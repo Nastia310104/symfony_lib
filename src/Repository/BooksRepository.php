@@ -19,22 +19,42 @@ class BooksRepository extends ServiceEntityRepository
         parent::__construct($registry, Books::class);
     }
 
-    // /**
-    //  * @return Books[] Returns an array of Books objects
-    //  */
-    /*
-    public function findByExampleField($value)
+//     /**
+//      * @return Books[] Returns an array of Books objects
+//      */
+//    public function findByFilterAndOrderBy($filter_name, $filter_data, $order_by)
+//    {
+//        return $this->createQueryBuilder('b')
+////            ->andWhere('b.exampleField = :val')
+////            ->setParameter('val', $value)
+////            ->orderBy('b.id', 'ASC')
+////            ->setMaxResults(10)
+//            ->andWhere('b.:filter_name = :filter_data')
+//            ->orderBy('q.:filter_name', ':order_by')
+//            ->setParameter('filter_data', $filter_data)
+//            ->setParameter('filter_name', $filter_name)
+//            ->setParameter('order_by', $order_by)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
+
+
+    /**
+     * @return Books[] Returns an array of Books objects
+     */
+    public function findByYearAndDESC($filter_data)
     {
         return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('b.id', 'ASC')
-            ->setMaxResults(10)
+
+            ->andWhere('b.year = :filter_data')
+            ->orderBy('b.year', 'DESC')
+            ->setParameter('filter_data', $filter_data)
             ->getQuery()
             ->getResult()
-        ;
+            ;
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Books
