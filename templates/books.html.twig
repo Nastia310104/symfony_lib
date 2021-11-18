@@ -77,6 +77,16 @@
                 </tr>
                 </thead>
                 <tbody>
+                    {% for book in library %}
+                        <tr>
+                            <th>{{ book.image }}</th>
+                            <th>{{ book.bName }}</th>
+                            <th>{{ book.author }}</th>
+                            <th>{{ book.description }}</th>
+                            <th>{{ book.year }}</th>
+
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
 

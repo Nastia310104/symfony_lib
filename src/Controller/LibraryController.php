@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Books;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,15 +22,20 @@ class LibraryController extends AbstractController
     /**
      * @Route("/books", name="lib_books")
      */
-    public function books(){
-        //$years = ['13', '14', '15'];
+    public function books(EntityManagerInterface $entityManager){
+
+        $id = 1;
+        $repository = $entityManager->getRepository(Books::class);
+        $library = $repository->findAll();
+
+
         $filters = ['Name', 'Author', 'Year'];
         $option = 'foo'; //get from filters leter
         return $this->render('books.html.twig', [
             'title' => 'Books',
             'filters' => $filters,
-            //'years' => $years,
-            'option' => $option
+            'option' => $option,
+            'library' => $library
         ]);
     }
 
@@ -45,7 +51,7 @@ class LibraryController extends AbstractController
     /**
      * @Route("/new_book", name="lib_new_b")
      */
-    public function add_new_book(){
+    public function add_new_book(EntityManagerInterface $entityManager){
         $book = new Books();
         $book->setBName('The Adventures of Oliver Twist')
             ->setAuthor('Charles Dickens')
@@ -71,7 +77,19 @@ class LibraryController extends AbstractController
 
 EOF
             );
-        return new Response('let uus make some magic');
+
+        $entityManager->persist($book);
+        $entityManager->flush();
+
+        return new Response(sprintf(
+            'Your data is: id = #%d, name = %s, author = %s,
+            description = %s, year = %d',
+            $book->getId(),
+            $book->getBName(),
+            $book->getAuthor(),
+            $book->getDescription(),
+            $book->getYear(),
+        ));
         //return $this->render('addNew.html.twig');
     }
 }
