@@ -40,7 +40,7 @@ class Books
     /**
      * @ORM\Column(type="text")
      */
-    private $image;
+    private $image = '/public/images/no_image.jpg';
 
     public function getId(): ?int
     {
