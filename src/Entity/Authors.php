@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AuthorsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -28,9 +30,14 @@ class Authors
     private $quantity;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="author_id")
      */
-    private $book_name;
+    private $relations;
+
+    public function __construct()
+    {
+        $this->relations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -61,14 +68,29 @@ class Authors
         return $this;
     }
 
-    public function getBookName(): ?string
+    /**
+     * @return Collection|Relations[]
+     */
+    public function getRelations(): Collection
     {
-        return $this->book_name;
+        return $this->relations;
     }
 
-    public function setBookName(string $book_name): self
+    public function addRelation(Relations $relation): self
     {
-        $this->book_name = $book_name;
+        if (!$this->relations->contains($relation)) {
+            $this->relations[] = $relation;
+            $relation->addAuthorId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRelation(Relations $relation): self
+    {
+        if ($this->relations->removeElement($relation)) {
+            $relation->removeAuthorId($this);
+        }
 
         return $this;
     }

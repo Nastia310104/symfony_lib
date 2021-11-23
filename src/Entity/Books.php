@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BooksRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -20,7 +22,7 @@ class Books
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $b_name;
+    private $title;
 
     /**
      * @ORM\Column(type="text")
@@ -42,19 +44,29 @@ class Books
      */
     private $image = '/public/images/no_image.jpg';
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="book_id")
+     */
+    private $relations;
+
+    public function __construct()
+    {
+        $this->relations = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getBName(): ?string
+    public function getTitle(): ?string
     {
-        return $this->b_name;
+        return $this->title;
     }
 
-    public function setBName(string $b_name): self
+    public function setTitle(string $title): self
     {
-        $this->b_name = $b_name;
+        $this->title = $title;
 
         return $this;
     }
@@ -103,6 +115,33 @@ class Books
     public function setImage(string $image): self
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Relations[]
+     */
+    public function getRelations(): Collection
+    {
+        return $this->relations;
+    }
+
+    public function addRelation(Relations $relation): self
+    {
+        if (!$this->relations->contains($relation)) {
+            $this->relations[] = $relation;
+            $relation->addBookId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRelation(Relations $relation): self
+    {
+        if ($this->relations->removeElement($relation)) {
+            $relation->removeBookId($this);
+        }
 
         return $this;
     }
