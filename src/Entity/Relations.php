@@ -20,12 +20,12 @@ class Relations
     private $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Books::class, inversedBy="relations")
+     * @ORM\ManyToMany(targetEntity=Books::class, inversedBy="relations", cascade={"persist"})
      */
     private $book_id;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Authors::class, inversedBy="relations")
+     * @ORM\ManyToMany(targetEntity=Authors::class, inversedBy="relations", cascade={"persist"})
      */
     private $author_id;
 

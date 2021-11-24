@@ -30,7 +30,7 @@ class Authors
     private $quantity;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="author_id")
+     * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="author_id", cascade={"persist"})
      */
     private $relations;
 
