@@ -42,7 +42,7 @@ class Books
     /**
      * @ORM\Column(type="text")
      */
-    private $image = '/public/images/no_image.jpg';
+    private $image = 'no_image.jpg';
 
     /**
      * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="book_id")

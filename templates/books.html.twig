@@ -2,25 +2,36 @@
 
 {% block main %}
     <div class="container-fluid">
-        <form action="{{ path('lib_add_new') }}" class="input-group input-group-lg mt-4" method="post">
-                <span class="input-group-text bg-secondary text-light">Add new book</span>
-                <input class="form-control" type="text" name="image" placeholder="how can i add an image?">
+
+{#        New book#}
+
+        <form name="addForm" action="{{ path('lib_add_new') }}" enctype="multipart/form-data" class="input-group input-group-lg mt-4" method="post">
+                <span class="border-0 input-group-text bg-secondary text-light">Add new book</span>
+                <input class="form-control" type="file" name="image" id="a_name" placeholder="Image">
                 <input class="form-control" type="text" name="title" placeholder="Title">
                 <input class="form-control" type="text" name="author" placeholder="Author name">
                 <input class="form-control" type="text" name="description" placeholder="Description">
                 <input class="form-control" type="text" name="year" placeholder="Year">
-                <button type="submit" class="btn btn-primary">Send</button>
+                <button type="submit" class="btn btn-primary" id="addBtn">Send</button>
         </form >
 
-            <form action="{{ path('lib_rand') }}" method="post" class="input-group mt-4">
-                    <span class="input-group-text bg-secondary text-light">Create a random book</span>
-                    <button type="submit" class="btn btn-primary">Create</button>
-            </form>
+{#        Error#}
+
         {% if error != "" %}
             <div class="container">
                 <span class="text-danger">{{ error }}</span>
             </div>
         {% endif %}
+
+{#        Random create#}
+
+        <form action="{{ path('lib_rand') }}" method="post" class="input-group mt-4">
+                <span class="input-group-text bg-secondary text-light">Create a random book</span>
+                <button type="submit" class="btn btn-primary" id="randBtn">Create</button>
+        </form>
+
+{#        Filter#}
+
         <form action="{{ path('lib_books') }}" method="post" class=" row g-3 my-3">
             <div class="col-auto">
                 <span class="text-light col">Select filter:</span>
@@ -50,6 +61,16 @@
             </div>
         </form>
 
+        {#        Filter error#}
+
+        {% if f_error != "" %}
+            <div class="container mt-1">
+                <span class="text-danger float-start">{{ f_error }}</span>
+            </div>
+        {% endif %}
+
+{#        Table#}
+
             <table class="table table-dark table-striped">
                 <thead>
                 <tr>
@@ -61,21 +82,17 @@
                 </tr>
                 </thead>
                 <tbody>
-                    {% for book in library %}
+                    {% for index, book in library %}
                         <tr>
                             <th>
-                                <img class="img" src="{{ book.image }}" alt="Can't load by some reason. src='{{ book.image }}'">
+                                <img style="height: 100px" src='{{ asset('images/') }}{{ book.image }}' alt="Can't load by some reason. src='{{ book.image }}'">
                             </th>
                             <th>{{ book.title }}</th>
-                            <th>{{ book.author }}</th>
+                            <th id="author{{ index }} name={{ book.author }}" >{{ book.author }}</th>
                             <th>{{ book.description }}</th>
                             <th>{{ book.year }}</th>
 
                         </tr>
-{#                        <tr>#}
-{#                            <input class="form-control my-3" type="text" name="{{ book.bName }}" value="{{ book.bName }}">#}
-{#Why it sets upper table?#}
-{#                        </tr>#}
                     {% endfor %}
                 </tbody>
             </table>
@@ -85,3 +102,19 @@
 
 
 {% endblock %}
+
+{#{% block js %}#}
+{#    <script>#}
+{#        const addBtn = document.querySelector('#addBtn');#}
+{#        let name = document.querySelector('#a_name')#}
+
+{#        // Submit or click#}
+{#        addBtn.addEventListener('click', () =>#}
+{#        authorQuantityUp());#}
+
+{#        function authorQuantityUp(){#}
+{#            let input = name.valueOf();#}
+{#        }#}
+{#    </script>#}
+
+{#{% endblock %}#}

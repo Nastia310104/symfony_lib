@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Authors;
 use App\Entity\Books;
 use App\Entity\Relations;
+use App\Service\ImageService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,11 +29,14 @@ class LibraryController extends AbstractController
      */
     public function books(EntityManagerInterface $entityManager, Request $request){
 
+        //why error parameter from add_new can't be catched?
+
         $filter = $request->request->get('filterRadio');
         $order = $request->request->get('orderRadio');
         $input = $request->request->get('filter_option');
 
         $error = "";
+        $f_error = "";
 
         $repository = $entityManager->getRepository(Books::class);
         $library = $repository->findAll();
@@ -40,17 +44,22 @@ class LibraryController extends AbstractController
         if($filter && $input){
             if($order){
                 global $library;
-                $library = $repository->findBy([$filter => $input], [$order]);
+                $library = $repository->findBy([$filter => $input], [$filter => $order]);
             }
             $library = $repository->findBy([$filter => $input]);
+        } elseif ((!$filter && $input) || ($filter && !$input)) {
+            global $f_error;
+            $f_error = "You forget choose filter or input";
         }
+
 
         $filters = ['title', 'author', 'year'];
         return $this->render('books.html.twig', [
             'title' => 'Books',
             'filters' => $filters,
             'library' => $library,
-            'error' => $error
+            'error' => $error,
+            'f_error' => $f_error
         ]);
     }
 
@@ -72,7 +81,7 @@ class LibraryController extends AbstractController
         if($filter && $input){
             if($order){
                 global $list;
-                $list = $repository->findBy([$filter => $input], [$order]);
+                $list = $repository->findBy([$filter => $input], [$filter => $order]);
             }
             global $list;
             $list = $repository->findBy([$filter => $input]);
@@ -84,7 +93,7 @@ class LibraryController extends AbstractController
 
         } elseif ($order){
             global $list;
-            $list = $repository->findBy([$filter => $input], [$order]);
+            $list = $repository->findBy([], [$order]);
         } elseif ((!$filter && $input) || ($filter && !$input)) {
             global $f_error;
             $f_error = "You forget choose filter or input";
@@ -149,44 +158,76 @@ class LibraryController extends AbstractController
 //    }
 
     /**
-     * @Route ("/books/add_new", name="lib_add_new", methods="POST")
+     * @Route ("/books/add_new", name="lib_add_new", methods="post")
      */
-    public  function book_added(EntityManagerInterface $entityManager, Request $request)
+    public  function book_added(EntityManagerInterface $entityManager, Request $request, ImageService $imageService)
     {
-        $image = $request->request->get('image');
+        $image = $request->files->get('image');
         $title = $request->request->get('title');
         $author_name = $request->request->get('author');
         $description = $request->request->get('description');
         $year = $request->request->get('year');
 
-
         $error = "";
         if(!$title || !$author_name || !$description || !$year){
             $error = 'You should fill all field';
+
+            return $this->redirectToRoute('lib_books', [
+                'error' => $error
+            ]);
+
         }
-//change with exceptions before. If books or authors in repo.... books with error
-        $book = new Books();
-        $author = new Authors();
 
-        if ($image != ""){
-            $book->setImage($image);
+        $book_repo = $entityManager->getRepository(Books::class)->createQueryBuilder('r')
+            ->where('r.title LIKE :title')
+            ->setParameter('title', '%'.$title.'%')
+            ->getQuery()
+            ->getResult();
+
+        $author_repo = $entityManager->getRepository(Authors::class)->createQueryBuilder('r')
+            ->where('r.name LIKE :name')
+            ->setParameter('name', '%'.$author_name.'%')
+            ->getQuery()
+            ->getResult();
+
+        if(!$book_repo){
+            $book = new Books();
+            if ($image){
+                $filename = $imageService->ImageUpload($image);
+                $book->setImage($filename);
+            }
+            $book->setTitle($title)
+                ->setAuthor($author_name)
+                ->setDescription($description)
+                ->setYear($year);
+
+            $relation = new Relations();
+            $relation->addBookId($book);
+
+            $book->addRelation($relation);
+        } else {
+            $error = "Book already added";
+
+            return $this->redirectToRoute('lib_books', [
+                'error' => $error
+            ]);
         }
-        $book->setTitle($title)
-            ->setAuthor($author_name)
-            ->setDescription($description)
-            ->setYear($year);
 
-//        $id = $entityManager->getRepository(Authors::class)->findBy(['name' => $author_name])[0];
-
-//        $doctrine_author = $entityManager->getRepository(Authors::class)->find($id);
-//        if ($doctrine_author){
-//            $doctrine_author->setBookName($doctrine_author->getBookName().(',').$book_name)
-//                ->setQuantity($doctrine_author->getQuantity() + 1);
-//        }
-//        else {
+        if(!$author_repo){
+            $author = new Authors();
             $author->setName($author_name)
                 ->setQuantity(1);
-//        }
+
+            $relation->addAuthorId($author);
+            $author->addRelation($relation);
+        } else {
+            //author repo not work
+            $author = $entityManager->getRepository(Authors::class)->findBy(['name' => $author_name])[0];
+            $author->setQuantity($author->getQuantity() + 1)
+                ->addRelation($relation);
+
+            $relation->addAuthorId($author);
+        }
 
         $entityManager->persist($book);
         $entityManager->persist($author);
@@ -235,6 +276,7 @@ class LibraryController extends AbstractController
                 global $error;
                 $error = "Book not added yet";
             } else {
+                $book_repo[0]->setAuthor($book_repo[0]->getAuthor().','.$name);
                 $relation->addBookId($book_repo[0]);
             }
         } else {
@@ -272,7 +314,7 @@ class LibraryController extends AbstractController
                 ->setAuthor($author_name)
                 ->setDescription($description)
                 ->setYear($year)
-                ->setImage('public/images/img'.rand(1, 10).'.jpg');
+                ->setImage('img'.rand(1, 10).'.jpg');
 
             $relation = new Relations();
             $relation->addBookId($book);
@@ -348,6 +390,25 @@ class LibraryController extends AbstractController
         return $this->redirectToRoute('lib_books');
     }
 
+    //function to change images on right name
+
+    /**
+     * @Route("/changeDB", name="lib_change")
+     */
+    public function change(EntityManagerInterface $entityManager){
+        $book_repo = $entityManager->getRepository(Books::class)->findAll();
+        for ($i = 0; $i < count($book_repo); $i++){
+            $book_repo[$i]->setImage('img'.rand(1, 10).'.jpg');
+
+            $entityManager->persist($book_repo[$i]);
+            $entityManager->flush();
+        }
+
+
+
+        dd($book_repo);
+
+    }
 }
 
 
