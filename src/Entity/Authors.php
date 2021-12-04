@@ -2,41 +2,49 @@
 
 namespace App\Entity;
 
-use App\Repository\AuthorsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=AuthorsRepository::class)
+ * Authors
+ *
+ * @ORM\Table(name="authors")
+ * @ORM\Entity
  */
 class Authors
 {
     /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255, nullable=false)
      */
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
+     * @var int
+     *
+     * @ORM\Column(name="quantity", type="integer", nullable=false)
      */
     private $quantity;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="author_id", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity=Books::class, mappedBy="a_relations", cascade={"persist"})
      */
-    private $relations;
+    private $books;
 
     public function __construct()
     {
-        $this->relations = new ArrayCollection();
+        $this->books = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -69,29 +77,31 @@ class Authors
     }
 
     /**
-     * @return Collection|Relations[]
+     * @return Collection|Books[]
      */
-    public function getRelations(): Collection
+    public function getBooks(): Collection
     {
-        return $this->relations;
+        return $this->books;
     }
 
-    public function addRelation(Relations $relation): self
+    public function addBook(Books $book): self
     {
-        if (!$this->relations->contains($relation)) {
-            $this->relations[] = $relation;
-            $relation->addAuthorId($this);
+        if (!$this->books->contains($book)) {
+            $this->books[] = $book;
+            $book->addARelations($this);
         }
 
         return $this;
     }
 
-    public function removeRelation(Relations $relation): self
+    public function removeBook(Books $book): self
     {
-        if ($this->relations->removeElement($relation)) {
-            $relation->removeAuthorId($this);
+        if ($this->books->removeElement($book)) {
+            $book->removeARelations($this);
         }
 
         return $this;
     }
+
+
 }

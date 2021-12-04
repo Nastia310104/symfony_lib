@@ -27,3 +27,4 @@ services:
     App\Service\ImageService:
         arguments:
             $postImageDirectory: '%image_post_directory%'
+

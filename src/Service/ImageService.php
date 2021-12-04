@@ -24,7 +24,7 @@ class ImageService implements ImageServiceInterface
 
     public function ImageUpload(UploadedFile $file): string
     {
-        $filename = uniqid().'.jpg';
+        $filename = uniqid().'.'.$file->guessExtension();
 
         try {
             $file->move($this->getPostImageDirectory(), $filename);

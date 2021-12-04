@@ -2,56 +2,70 @@
 
 namespace App\Entity;
 
-use App\Repository\BooksRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=BooksRepository::class)
+ * Books
+ *
+ * @ORM\Table(name="books")
+ * @ORM\Entity
  */
 class Books
 {
     /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="title", type="string", length=255, nullable=false)
      */
     private $title;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text", length=500, nullable=false)
      */
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var string
+     *
+     * @ORM\Column(name="author", type="string", length=255, nullable=false)
      */
     private $author;
 
     /**
-     * @ORM\Column(type="integer")
+     * @var int
+     *
+     * @ORM\Column(name="year", type="integer", nullable=false)
      */
     private $year;
 
     /**
-     * @ORM\Column(type="text")
+     * @var string
+     *
+     * @ORM\Column(name="image", type="text", length=0, nullable=false)
      */
-    private $image = 'no_image.jpg';
+    private $image;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Relations::class, mappedBy="book_id")
+     * @ORM\ManyToMany(targetEntity=Authors::class, inversedBy="books")
      */
-    private $relations;
+    private $a_relations;
 
     public function __construct()
     {
-        $this->relations = new ArrayCollection();
+        $this->a_relations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -120,29 +134,28 @@ class Books
     }
 
     /**
-     * @return Collection|Relations[]
+     * @return Collection|Authors[]
      */
-    public function getRelations(): Collection
+    public function getARelations(): Collection
     {
-        return $this->relations;
+        return $this->a_relations;
     }
 
-    public function addRelation(Relations $relation): self
+    public function addARelations(Authors $a_relations): self
     {
-        if (!$this->relations->contains($relation)) {
-            $this->relations[] = $relation;
-            $relation->addBookId($this);
+        if (!$this->a_relations->contains($a_relations)) {
+            $this->a_relations[] = $a_relations;
         }
 
         return $this;
     }
 
-    public function removeRelation(Relations $relation): self
+    public function removeARelations(Authors $a_relations): self
     {
-        if ($this->relations->removeElement($relation)) {
-            $relation->removeBookId($this);
-        }
+        $this->a_relations->removeElement($a_relations);
 
         return $this;
     }
+
+
 }
