@@ -28,3 +28,15 @@ services:
         arguments:
             $postImageDirectory: '%image_post_directory%'
 
+    admin.authors:
+        class: App\Admin\AuthorsAdmin
+        arguments: [~, App\Entity\Authors, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: Authors }
+
+
+    admin.books:
+        class: App\Admin\AdminBooks
+        arguments: [ ~, App\Entity\Books, ~ ]
+        tags:
+            - { name: sonata.admin, manager_type: orm, label: 'Books' }

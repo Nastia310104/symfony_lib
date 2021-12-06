@@ -72,14 +72,15 @@ class BookController extends AbstractController
         $order = $request->request->get('orderRadio');
         $input = $request->request->get('filter_option');
 
-        $library = $entityManager->getRepository(Books::class)->findAll();
+        $repository = $entityManager->getRepository(Books::class);
+        $library = $repository->findAll();
 
         if($filter && $input){
             if($order){
                 global $library;
-                $library = $library->findBy([$filter => $input], [$filter => $order]);
+                $library = $repository->findBy([$filter => $input], [$filter => $order]);
             }
-            $library = $library->findBy([$filter => $input]);
+            $library = $repository->findBy([$filter => $input]);
         } elseif ((!$filter && $input) || ($filter && !$input)) {
             $this->addFlash(
                 'error',
